@@ -72,7 +72,7 @@
 */
 
 // my api key - replace this with yours!
-const apiKey = "AIzaSyC1HTCZ6mUEKFuuLHPLdE1zM2_Q7j0vxhk";
+const apiKey = "AIzaSyAwm6L-OQdlMsjoond2z6CPHldfWVZppc0";
 
 // url pattern for api call
 const geocodeUrl = "https://maps.googleapis.com/maps/api/geocode/json?region=us&address=";
