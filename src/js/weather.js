@@ -41,16 +41,16 @@ class Weather {
       forecast: [],
       selectedDate: null
     };
-      
+
     this.url = "https://api.openweathermap.org/data/2.5/onecall?";
     this.apikey = "&exclude=minutely,hourly,current&units=imperial&appid=b60f3e43cd09edb1dee89e759d2a4049";
     this.form = document.querySelector('#zipForm');
     this.zipcode = document.querySelector('#zipcode').value; //gets user input
     this.weather = document.querySelector('#weatherList');
     this.currentDay = document.querySelector('#currentDay');
+    this.renderWeatherList = this.renderWeatherList.bind(this);
 
     document.getElementById('zipForm').onsubmit = this.onFormSubmit.bind(this);
-    document.getElementById('zipForm').onsubmit = this.onFormSubmit2.bind(this);
   }
 
   /*- Write the first version of the method onFormSubmit.  It should
@@ -66,42 +66,46 @@ class Weather {
 - Don't forget to instantiate the a weather object!
 END OF PART 1 - TEST AND DEBUG YOUR APP*/
 
+  /* 
+  version 1 (because I take things way too literal sometimes)
+  
+    onFormSubmit(event) {
+      event.preventDefault();
+      this.state.zipcode = document.querySelector('#zipcode').value;
+      getLocation(this.state.zipcode)
+        .then(data => {
+          this.state.city.name = data.results[0].address_components[1].long_name;
+          this.state.city.lat = data.results[0].geometry.location.lat;
+          this.state.city.lng = data.results[0].geometry.location.lng;
+          //console.log(this.state.city.name);
+        })
+        .catch(error => {
+          alert("There was a problem getting location information!");
+        });
+  
+    }*/
+
+  /*- Part 2 - Add a second ajax call to openweathermap to get weather information
+for the zipcode.  The dates in the weather information are GMT.  You want
+to translate them to the timezone for the zipcode the user entered.
+- Edit the method onFormSubmit
+    - replace the console.log of the state
+      with an additional call to fetch
+      - call fetch with the url for openweather map
+      ** fetch(`${this.url}
+        lat=${this.state.city.lat}&lon=${this.state.city.lng}
+        ${this.apikey}`) **
+        - when the response comes back THEN parse the json
+        - when that finishes THEN
+          - set the timezoneOffset in the state object instance variable
+          - set the forecast (array) in the state object instance variable
+          - there may be 8 days - use splice to get rid of the 8th day
+          - console.log the forecast
+          - clear the zipcode from the UI
+END OF PART 2 - TEST AND DEBUG YOUR APP*/
+
+  //edited 2nd version onFormSubmit
   onFormSubmit(event) {
-    event.preventDefault();
-    this.state.zipcode = document.querySelector('#zipcode').value;
-    getLocation(this.state.zipcode)
-      .then(data => {
-        this.state.city.name = data.results[0].address_components[1].long_name;
-        this.state.city.lat = data.results[0].geometry.location.lat;
-        this.state.city.lng = data.results[0].geometry.location.lng;
-        console.log(this.state.city.name);
-      })
-      .catch(error => {
-        alert("There was a problem getting location information!");
-      });
-
-  }
-
-    /*- Part 2 - Add a second ajax call to openweathermap to get weather information
-  for the zipcode.  The dates in the weather information are GMT.  You want
-  to translate them to the timezone for the zipcode the user entered.
-  - Edit the method onFormSubmit
-      - replace the console.log of the state
-        with an additional call to fetch
-        - call fetch with the url for openweather map
-        ** fetch(`${this.url}
-          lat=${this.state.city.lat}&lon=${this.state.city.lng}
-          ${this.apikey}`) **
-          - when the response comes back THEN parse the json
-          - when that finishes THEN
-            - set the timezoneOffset in the state object instance variable
-            - set the forecast (array) in the state object instance variable
-            - there may be 8 days - use splice to get rid of the 8th day
-            - console.log the forecast
-            - clear the zipcode from the UI
-  END OF PART 2 - TEST AND DEBUG YOUR APP*/
-
-  onFormSubmit2(event) {
     event.preventDefault();
     this.state.zipcode = document.querySelector('#zipcode').value;
     getLocation(this.state.zipcode)
@@ -112,37 +116,52 @@ END OF PART 1 - TEST AND DEBUG YOUR APP*/
         fetch(`${this.url}lat=${this.state.city.lat}&lon=${this.state.city.lng}${this.apikey}`)
           .then(response => response.json())
           .then(data => {
-            this.state.city.timezoneOffset = data.timezone_offset;
-            this.state.city.forecast = data.daily;
-            console.log(this.state.city.forecast)
+            this.state.timezoneOffset = data.timezone_offset;
+            this.state.forecast = data.daily;
+            this.state.forecast.splice(7);
+            //console.log(this.state.forecast) //test trash
+            this.renderWeatherList(this.state.forecast);
           })
           .catch(error => {
-           alert("There was a problem getting weather information!");
+            alert("There was a problem getting weather information!");
+            //alert(error.message); //test trash
           });
       })
-      
+
       .catch(error => {
-          alert("There was a problem getting location information!");
-          alert(error.message);
+        alert("There was a problem getting location information!");
+        //alert(error.message); //test trash
       });
 
-      this.state.zipcode = document.querySelector('#zipcode').value = ''
+    //correct clear UI
+    document.getElementById("zipcode").value = '';
   }
-  
+
   /*- Part 3 - Write the first version of method renderWeatherList.  It writes the forecast data to the page
-  - Write a stub of renderWeatherListItem.  This method returns a template literal containing the html
-    for the weather for ONE day.  It gets called in renderWeatherList.  It has 2 parameters a
-    forecastDay and an index.  The forecastDay is a js object from the weather api.
-    - in the body of the method console.log both the forecastDay and the index
-  - Write a sub of renderWeatherList.  It has forecastDays (which is 7 element forcast array)
-    as a parameter.
-    - in the body of the method console.log the value of forecastDays.
-  - Edit the constructor to bind the class to the method renderWeatherList
-  - call renderWeatherList in onFormSubmit AFTER BOTH ajax calls have completed.
-    Pass this.state.forecast as a parameter.
-  END OF PART 3 - TEST AND DEBUG YOUR APP
-  
-  - Part 4 - Format ONE weather list item and the weather list as a whole
+- Write a stub of renderWeatherListItem.  This method returns a template literal containing the html
+  for the weather for ONE day.  It gets called in renderWeatherList.  It has 2 parameters a
+  forecastDay and an index.  The forecastDay is a js object from the weather api.
+  - in the body of the method console.log both the forecastDay and the index
+- Write a sub of renderWeatherList.  It has forecastDays (which is 7 element forcast array)
+  as a parameter.
+  - in the body of the method console.log the value of forecastDays.
+- Edit the constructor to bind the class to the method renderWeatherList
+- call renderWeatherList in onFormSubmit AFTER BOTH ajax calls have completed.
+  Pass this.state.forecast as a parameter.
+END OF PART 3 - TEST AND DEBUG YOUR APP*/
+
+  //forcastDays is an array passed in this.state.forecast ~ forecast value is derived from the api call payload
+  renderWeatherList(forecastDays) {
+    //console.log(forecastDays);//test trash
+    //loop?
+      const itemsHTML = forecastDays.map((forecastDay, index) => this.renderWeatherListItem(forecastDay, index)).join('');
+      document.getElementById("weatherList").innerHTML = itemsHTML;
+    
+
+  }
+
+  //edit html and use template literal?//
+  /*- Part 4 - Format ONE weather list item and the weather list as a whole
   - Edit the body of the method renderWeatherListItem
     - Format the weather information for one day on the html page.  At a minimum it should include
       - the month and day as well as the weekday
@@ -159,9 +178,30 @@ END OF PART 1 - TEST AND DEBUG YOUR APP*/
     - Set the inner html of the weatherList element on the page to
       - a div element styled with weather-list flex-parent
       - that contains the itemsHTML from above
-  END OF PART 4 - TEST AND DEBUG YOUR APP
+  END OF PART 4 - TEST AND DEBUG YOUR APP*/
+
+  renderWeatherListItem(forecastDay, index) {
+    //console.log("day: " + forecastDay + " Index " + index);//test trash
+    this.date = getDate(forecastDay.dt, this.state.timezoneOffset);
+    this.weekDay = getWeekday(this.date)
+    this.month = this.date.getMonth();
+    this.day = this.date.getDate();
+    
+    return `
+      <div class="weather-list-item" id="${index}">
+        <div>${this.day} / ${this.month}</div>
+        <div>${this.weekDay}</div>
+        <div>${forecastDay.temp.max} | ${forecastDay.temp.min}</div>
+      </div>
+        ` ;
+  }
+
+  renderCurrentDay(index) {
+
+  }
   
-  - Part 5 - Display weather details when the user clicks one weather list item
+  
+  /*- Part 5 - Display weather details when the user clicks one weather list item
   - Write the method renderCurrentDay.  It takes the index of the day as it's parameter.
     - Format the detailed weather information for the selected day on the html page. Include at least
       - identifying information for the city as well as the date
