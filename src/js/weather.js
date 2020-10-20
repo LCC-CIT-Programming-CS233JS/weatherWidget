@@ -152,29 +152,14 @@ END OF PART 3 - TEST AND DEBUG YOUR APP*/
 
   //forcastDays is an array passed in this.state.forecast ~ forecast value is derived from the api call payload
   renderWeatherList(forecastDays) {
-    //console.log(forecastDays);
-    for (let i = 0; i < forecastDays.length; i++) {
-      //forecastDays[i] (individual day is passed into renderWeatherListItem)
-      this.renderWeatherListItem(forecastDays[i], i);
-    }
-
-  }
-
-  renderWeatherListItem(forecastDay, index) {
-    //console.log("day: " + forecastDay + " Index " + index);
-    this.date = getDate(forecastDay.dt, this.state.timezoneOffset);
-    this.weekDay = getWeekday(this.date)
-    this.month = this.date.getMonth();
-    this.day = this.date.getDate();
+    //console.log(forecastDays);//test trash
+    //loop?
+      const itemsHTML = forecastDays.map((forecastDay, index) => this.renderWeatherListItem(forecastDay, index)).join('');
+      document.getElementById("weatherList").innerHTML = itemsHTML;
     
-    return `
-      <div class="weather-list-item" id="${index}">
-        <div>${this.day} / ${this.month}</div>
-        <div>${this.weekDay}</div>
-        <div>${forecastDay.temp.max} | ${forecastDay.temp.min}</div>
-      </div>
-        ` ;
+
   }
+
   //edit html and use template literal?//
   /*- Part 4 - Format ONE weather list item and the weather list as a whole
   - Edit the body of the method renderWeatherListItem
@@ -193,9 +178,30 @@ END OF PART 3 - TEST AND DEBUG YOUR APP*/
     - Set the inner html of the weatherList element on the page to
       - a div element styled with weather-list flex-parent
       - that contains the itemsHTML from above
-  END OF PART 4 - TEST AND DEBUG YOUR APP
+  END OF PART 4 - TEST AND DEBUG YOUR APP*/
+
+  renderWeatherListItem(forecastDay, index) {
+    //console.log("day: " + forecastDay + " Index " + index);//test trash
+    this.date = getDate(forecastDay.dt, this.state.timezoneOffset);
+    this.weekDay = getWeekday(this.date)
+    this.month = this.date.getMonth();
+    this.day = this.date.getDate();
+    
+    return `
+      <div class="weather-list-item" id="${index}">
+        <div>${this.day} / ${this.month}</div>
+        <div>${this.weekDay}</div>
+        <div>${forecastDay.temp.max} | ${forecastDay.temp.min}</div>
+      </div>
+        ` ;
+  }
+
+  renderCurrentDay(index) {
+
+  }
   
-  - Part 5 - Display weather details when the user clicks one weather list item
+  
+  /*- Part 5 - Display weather details when the user clicks one weather list item
   - Write the method renderCurrentDay.  It takes the index of the day as it's parameter.
     - Format the detailed weather information for the selected day on the html page. Include at least
       - identifying information for the city as well as the date
