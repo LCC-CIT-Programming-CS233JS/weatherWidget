@@ -121,6 +121,7 @@ END OF PART 2 - TEST AND DEBUG YOUR APP*/
             this.state.forecast.splice(7);
             //console.log(this.state.forecast) //test trash
             this.renderWeatherList(this.state.forecast);
+            
           })
           .catch(error => {
             alert("There was a problem getting weather information!");
@@ -153,11 +154,12 @@ END OF PART 3 - TEST AND DEBUG YOUR APP*/
   //forcastDays is an array passed in this.state.forecast ~ forecast value is derived from the api call payload
   renderWeatherList(forecastDays) {
     //console.log(forecastDays);//test trash
-    //loop?
       const itemsHTML = forecastDays.map((forecastDay, index) => this.renderWeatherListItem(forecastDay, index)).join('');
       document.getElementById("weatherList").innerHTML = itemsHTML;
-    
-
+      let items = document.getElementsByClassName("weather-list-item");
+      for (let i = 0; i < items.length; i++) {
+        items[i].onclick = this.renderCurrentDay.bind(this, i);
+      }
   }
 
   //edit html and use template literal?//
@@ -182,21 +184,47 @@ END OF PART 3 - TEST AND DEBUG YOUR APP*/
 
   renderWeatherListItem(forecastDay, index) {
     //console.log("day: " + forecastDay + " Index " + index);//test trash
+    //change this to let ` they are temporary variables
     this.date = getDate(forecastDay.dt, this.state.timezoneOffset);
-    this.weekDay = getWeekday(this.date)
-    this.month = this.date.getMonth();
-    this.day = this.date.getDate();
+    let weekDay = getWeekday(this.date)
+    let month = this.date.getMonth();
+    let day = this.date.getDate();
     
     return `
       <div class="weather-list-item" id="${index}">
-        <div>${this.day} / ${this.month}</div>
-        <div>${this.weekDay}</div>
+        <div>${day} / ${month}</div>
+        <div>${weekDay}</div>
         <div>${forecastDay.temp.max} | ${forecastDay.temp.min}</div>
       </div>
         ` ;
   }
 
   renderCurrentDay(index) {
+    let city = this.state.city.name;
+    this.date = getDate(this.state.forecast[index].dt, this.state.timezoneOffset);
+    let weekday = getWeekday(this.date);
+    let icon = this.state.forecast[index].weather[0].icon;
+    let description = this.state.forecast[index].weather[0].description;
+    let morn = this.state.forecast[index].temp.morn;
+    let day = this.state.forecast[index].temp.day;
+    let eve = this.state.forecast[index].temp.eve;
+    let night = this.state.forecast[index].temp.night;
+    let humidity = this.state.forecast[index].humidity;
+    let wind = this.state.forecast[index].wind_speed;
+
+
+    let html = `
+      <div><strong>${weekday} ${city}</strong></div>
+      <div><img src="https://www.openweathermap.org/img/wn/${icon}@2x.png" alt"weather icon" width="50px" 
+      height="50px"/><strong> ${description}</strong></div>
+      <div><strong>Morning Temperature:&nbsp${morn}</strong></div>
+      <div><strong>Day Temperature:&nbsp${day}</strong></div>
+      <div><strong>Evening Temperature:&nbsp${eve}</strong></div>
+      <div><strong>Night Temperature:&nbsp${night}</strong></div>
+      <div><strong>Humidity:&nbsp${humidity}</strong></div>
+      <div><strong>Wind speed:&nbsp${wind}</strong></div>
+      ` ;
+      document.getElementById("currentDay").innerHTML = html;
 
   }
   
