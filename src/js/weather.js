@@ -187,7 +187,7 @@ END OF PART 3 - TEST AND DEBUG YOUR APP*/
     //change this to let ` they are temporary variables
     this.date = getDate(forecastDay.dt, this.state.timezoneOffset);
     let weekDay = getWeekday(this.date)
-    let month = this.date.getMonth();
+    let month = this.date.getMonth()+1; 
     let day = this.date.getDate();
     
     return `
